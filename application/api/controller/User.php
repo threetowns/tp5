@@ -22,9 +22,22 @@ class User extends Controller
      *
      * @return \think\Response
      */
-    public function create()
+    public function create(Request $request)
     {
         //
+        $data = [
+          'username' => $request->param('username'),
+          'password' => $request->param('password')
+        ];
+        // return json_encode($data);
+
+        $User = model('User');
+        $ret  = $User->getJoin($data);
+        if($ret){
+            return msg(1, null, '创建成功！');
+        }else{
+            return msg(0, null, $User->getError());
+        }
     }
 
     /**
