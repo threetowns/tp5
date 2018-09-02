@@ -92,6 +92,30 @@ www  WEB部署目录（或者子目录）
 > 可以使用php自带webserver快速测试
 > 切换到根目录后，启动命令：php think run
 
+
+
+## 开发流程
+
+### 一、准备工作
+
+* 通过`Composer`安装：
+
+  ```bash
+  composer create-project topthink/think imtoken
+  ```
+
+* 快速测试：
+
+  ```bash
+  php think run      // 切换到项目根目录后，启动命令
+  ```
+
+* 配置本地开发域名
+
+  根目录指向 WWW部署目录下的 `public`目录。
+
+  
+
 ## 升级指导
 
 原有下面系统类库的命名空间需要调整：
