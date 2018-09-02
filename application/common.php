@@ -10,3 +10,12 @@
 // +----------------------------------------------------------------------
 
 // 应用公共文件
+function msg($state, $data, $message = '')
+{
+    $data = [
+      'state' => $state ,
+      'data' => $data,
+      'message' => $message
+    ];
+    return json_encode($data);
+}
