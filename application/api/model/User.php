@@ -15,6 +15,13 @@ class User extends Model
             $this->error = $validate->getError();
             return false;
         }
-        return true;
+        $data['password'] = md5('hello' . md5($data['password']) . 'imtoken');
+        $result = $this->insert($data);
+        if ($result) {
+            return $result;
+        } else {
+            $this->error = '创建失败！';
+            return false;
+        }
     }
 }
