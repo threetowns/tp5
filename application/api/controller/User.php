@@ -15,6 +15,7 @@ class User extends Controller
     public function index()
     {
         //
+        return msg(0, null, '访问无效');
     }
 
     /**
