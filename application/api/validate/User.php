@@ -15,7 +15,7 @@ class User extends Validate
     protected $rule = [
         'username' => 'require',
         'password' => 'require|min:8|max:20',
-        'words' => 'require'
+        'memory_words' => 'require'
     ];
     
     /**
@@ -29,7 +29,7 @@ class User extends Validate
         'password.require' => '密码不能为空',
         'password.min' => '密码不少于8位字符',
         'password.max' => '密码不大于20位字符',
-        'words.require' => '助记词不能为空'
+        'memory_words.require' => '助记词不能为空'
     ];
 
     /**
@@ -40,6 +40,6 @@ class User extends Validate
      */ 
     protected $scene = [
         'join'  =>  ['username','password'],
-        'words'   =>  ['words']
+        'memory_words'   =>  ['memory_words']
     ];
 }

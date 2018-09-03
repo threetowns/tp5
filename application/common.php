@@ -19,3 +19,17 @@ function msg($state, $data, $message = '')
     ];
     return json_encode($data);
 }
+
+// 生成 ETH
+function createRandCode($type = 'ETH'){
+	$pattern = '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';    //字符池
+	$key = '';
+	if ($type === 'ETH') {
+		$length = 40;
+		$start = '0x';
+	}
+	for($i=0; $i<$length; $i++){
+		$key .= $pattern{mt_rand(0, 61)};    //生成php随机数
+	}
+	return $start.$key;
+}
