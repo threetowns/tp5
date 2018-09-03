@@ -38,6 +38,7 @@ class User extends Model
             'unique_key' => $data['unique_key']
         );
         $rs = $this->where($where)->find();
+        unset($rs['password']);
 
         if ($rs['uid']) {
             // 1. 生成ETH
@@ -53,6 +54,9 @@ class User extends Model
             $wallet['state'] = 1;
             $wallet['price'] = 0;
             $walletRs = db('user_wallet')->insert($wallet);
+
+            $rs['memory_words'] = $data['memory_words'];
+            cache($data['unique_key'], json_encode($rs), 3600 * 24);
 
             if ($walletRs) {
                 $result = $this->allowField(['memory_words'])->update($data, ['uid' => $rs['uid']]);
