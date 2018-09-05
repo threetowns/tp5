@@ -25,8 +25,10 @@ class Wallet extends Controller
 
             $this->model = model('Wallet');
             // 业务逻辑 - 获取当前用户的 钱包信息
-            $data['uid'] = $this->user['uid'];
-            $ret  = $this->model->getWallet($data);
+            $query['uid'] = $this->user['uid'];
+            $query['status'] = input('status') ? input('status') : 1;
+            $query['type'] = $this->param['wallet_type'] ? $this->param['wallet_type'] : 1;
+            $ret  = $this->model->getWallet($query);
             if($ret){
                 return msg(1, $ret, '操作成功');
             }else{
