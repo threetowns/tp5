@@ -66,9 +66,37 @@ class Wallet extends Controller
      * @param  int  $id
      * @return \think\Response
      */
-    public function read($id)
+    public function read(Request $request)
     {
-        //
+        header('Access-Control-Allow-Origin: *');
+        if($request->isPost()){
+            // 1. 获取传入参数
+            $this->param = $request->param();
+            // 2. 处理查询条件
+            $where = [];
+            // 2.1 keyword 查询 symbol或address
+            $queryKeyword = isset($this->param['keyword']) ? $this->param['keyword'] : null;
+            if($queryKeyword){
+                $where[] = ['symbol|address', 'like', '%'.$queryKeyword. '%'];
+            }
+            // 2.2 状态 0，默认不显示；1，显示
+            $queryStatus = isset($this->param['status']) ? $this->param['status'] : null;
+            if (!!$queryStatus) {
+                $where[] = ['status', '=', $queryStatus];
+            }
+
+            $res = db('wallet_type')
+                    ->field('address, symbol, logo_icon')
+                    ->where($where)
+                    ->select();
+            if($res){
+                return msg(1, $res, '操作成功');
+            }else{
+                return msg(0, [], '暂无数据');
+            }
+        }else{
+            return msg(0, null, '非法请求');
+        }
     }
 
     /**

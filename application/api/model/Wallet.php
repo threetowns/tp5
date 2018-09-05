@@ -14,7 +14,7 @@ class Wallet extends Model
     	if($data['status']){ $where['t.status'] = $data['status']; }
         // $res = $this->where($data)->field('type,name,address,status,price')->select();
 		$res = $this->alias('w')
-                ->field('w.name, w.wtid type, w.status, w.num, w.address, t.logo_icon, t.ticker_id, t.symbol t_symbol')
+                ->field('w.name, w.wtid type, w.status, w.num, w.address, t.pid, t.logo_icon, t.ticker_id, t.symbol t_symbol')
                 ->join('wallet_type t', 'w.wtid = t.wid', 'LEFT')
                 ->order('t.wid ASC')
                 ->where($where)->select();
