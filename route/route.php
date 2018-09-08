@@ -9,9 +9,11 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-Route::rule('api/user/create','api/user/create','POST');
+Route::rule('api/wallet/list','api/wallet/read','POST');
 
-Route::miss('api/user/index');
+Route::rule('api/wallet/type/:id','api/wallet/type','GET');
+
+// Route::miss('api/user/index');
 
 return [
 

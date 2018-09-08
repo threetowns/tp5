@@ -119,6 +119,37 @@ class Wallet extends Controller
     }
 
     /**
+     * 显示编辑资源表单页.
+     *
+     * @param  int  $id
+     * @return \think\Response
+     */
+    public function type(Request $request)
+    {
+        header('Access-Control-Allow-Origin: *');
+        $this->param = $request->param();
+        if(isset($this->param['id'])){
+             // 2.4 id,父级ID
+            $queryId = isset($this->param['id']) ? $this->param['id'] : null;
+            if (!!$queryId) {
+                $where[] = ['t.wid', '=', $queryId];
+            }
+
+            $res = db('wallet_type')->alias("t")
+                    ->field('t.address, t.symbol, t.logo_icon, t.fullname, t.ticker_id, t.slogan, t.publish_date, t.init_price, t.website, t.wid id')
+                    ->where($where)
+                    ->find();
+            if($res){
+                return msg(1, $res, '操作成功');
+            }else{
+                return msg(0, null, '暂无数据');
+            }
+        }else{
+            return msg(0, null, '非法请求呢');
+        }
+    }
+
+    /**
      * 保存更新的资源
      *
      * @param  \think\Request  $request
