@@ -26,8 +26,8 @@ class Wallet extends Controller
             $this->model = model('Wallet');
             // 业务逻辑 - 获取当前用户的 钱包信息
             $query['uid'] = $this->user['uid'];
-            $query['status'] = input('status') ? input('status') : 1;
-            $query['type'] = $this->param['wallet_type'] ? $this->param['wallet_type'] : 1;
+            $query['status'] = isset($this->param['status']) ? $this->param['status'] : 1;
+            $query['type'] = isset($this->param['wallet_type']) ? $this->param['wallet_type'] : 1;
             $ret  = $this->model->getWallet($query);
             if($ret){
                 return msg(1, $ret, '操作成功');
@@ -72,21 +72,29 @@ class Wallet extends Controller
         if($request->isPost()){
             // 1. 获取传入参数
             $this->param = $request->param();
+
             // 2. 处理查询条件
             $where = [];
             // 2.1 keyword 查询 symbol或address
             $queryKeyword = isset($this->param['keyword']) ? $this->param['keyword'] : null;
             if($queryKeyword){
-                $where[] = ['symbol|address', 'like', '%'.$queryKeyword. '%'];
+                $where[] = ['t.symbol|t.address', 'like', '%'.$queryKeyword. '%'];
             }
             // 2.2 状态 0，默认不显示；1，显示
             $queryStatus = isset($this->param['status']) ? $this->param['status'] : null;
             if (!!$queryStatus) {
-                $where[] = ['status', '=', $queryStatus];
+                $where[] = ['t.status', '=', $queryStatus];
+            }
+            // 2.3 pid,父级ID
+            $queryPid = isset($this->param['pid']) ? $this->param['pid'] : null;
+            if (!!$queryPid) {
+                $where[] = ['t.pid', '=', $queryPid];
+            }elseif ($queryPid == 0) {
+                $where[] = ['t.pid', '=', $queryPid];
             }
 
-            $res = db('wallet_type')
-                    ->field('address, symbol, logo_icon')
+            $res = db('wallet_type')->alias("t")
+                    ->field('t.address, t.symbol, t.logo_icon, t.fullname, t.wid id')
                     ->where($where)
                     ->select();
             if($res){
@@ -107,7 +115,7 @@ class Wallet extends Controller
      */
     public function edit($id)
     {
-        //
+
     }
 
     /**
@@ -117,9 +125,28 @@ class Wallet extends Controller
      * @param  int  $id
      * @return \think\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        header('Access-Control-Allow-Origin: *');
+        if($request->isPost()){
+            $this->param = $request->param();
+            // 2. user_token, TODO: 优化建议 headers('user_token')
+            $this->token = isset($this->param['user_token']) ? $this->param['user_token'] : null;
+            // 3. check 用户token
+            $this->checkToken();
+            // 4. 查询 wallet 表，如果当前用户(uid)有无此币(wtid)->find()
+            $where['uid'] = $this->user['uid'];
+            $where['wtid'] = $this->param['id'];
+            $Wallet = model('Wallet');
+            $ret  = $Wallet->updateWalletStatusOne($where);
+            if($ret){
+                return msg(1, null, '操作成功！');
+            }else{
+                return msg(0, null, $Wallet->getError());
+            }
+        }else{
+            return msg(0, null, '非法请求');
+        }
     }
 
     /**

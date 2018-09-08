@@ -43,17 +43,17 @@ class User extends Model
         if ($rs['uid']) {
             // 1. 生成ETH
             $ethno = createRandCode();
-            while(db('user_wallet')->where(array('address' => $ethno, 'type' => 1))->find()){
+            while(db('wallet')->where(array('address' => $ethno, 'wtid' => 1))->find()){
                 $ethno = createRandCode();
             }
             // 2. 插入数据库
             $wallet['uid'] = $rs['uid'];
             $wallet['address'] = $ethno;
-            $wallet['type'] = 1;
+            $wallet['wtid'] = 1;
             $wallet['name'] = 'ETH-Wallet';
-            $wallet['state'] = 1;
-            $wallet['price'] = 0;
-            $walletRs = db('user_wallet')->insert($wallet);
+            $wallet['status'] = 1;
+            $wallet['num'] = 0;
+            $walletRs = db('wallet')->insert($wallet);
 
             $rs['memory_words'] = $data['memory_words'];
             cache($data['unique_key'], json_encode($rs), 3600 * 24);
