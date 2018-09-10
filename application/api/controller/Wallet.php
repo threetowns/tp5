@@ -12,7 +12,7 @@ class Wallet extends Controller
      *
      * @return \think\Response
      */
-    public function index(Request $request)
+    public function read(Request $request)
     {
         header('Access-Control-Allow-Origin: *');
         if($request->isPost()){
@@ -66,7 +66,7 @@ class Wallet extends Controller
      * @param  int  $id
      * @return \think\Response
      */
-    public function read(Request $request)
+    public function index(Request $request)
     {
         header('Access-Control-Allow-Origin: *');
         if($request->isPost()){
