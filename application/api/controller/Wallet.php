@@ -136,7 +136,7 @@ class Wallet extends Controller
             }
 
             $res = db('wallet_type')->alias("t")
-                    ->field('t.address, t.symbol, t.logo_icon, t.website_slug, t.fullname, t.ticker_id, t.slogan, t.publish_date, t.init_price, t.website, t.wid id')
+                    ->field('t.address, t.symbol, t.logo_icon, t.website_slug, t.fullname, t.ticker_id, t.slogan, t.publish_date, t.init_price, t.website, t.wid id, t.gas')
                     ->where($where)
                     ->find();
             if($res){
