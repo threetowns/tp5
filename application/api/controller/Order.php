@@ -12,6 +12,9 @@ class Order extends Controller
         return msg(0, null, '访问无效');
     }
 
+    /*
+     * 转账
+     */
     public function add(Request $request)
     {
         header('Access-Control-Allow-Origin: *');
@@ -51,6 +54,28 @@ class Order extends Controller
         }else{
             return msg(0, null, '非法请求');
         }
+    }
+
+    // 统计
+    public function count(Request $request){
+		header('Access-Control-Allow-Origin: *');
+		if($request->isPost()){
+			$this->param = $request->param();
+            $this->token = isset($this->param['user_token']) ? $this->param['user_token'] : null;
+            $this->checkToken();
+
+            $data['uid'] = $this->user['uid'];
+            $data['wtid'] = isset($this->param['wtid']) ? $this->param['wtid'] : null;
+            $Order = model('Order');
+            $ret = $Order->getCount($data);
+            if($ret){
+                return msg(1, $ret, '请求成功！');
+            }else{
+                return msg(0, null, $Order->getError());
+            }
+	    }else{
+	    	return msg(0, null, '非法请求');
+	    }
     }
 
     public function checkToken()

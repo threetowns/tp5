@@ -3,6 +3,7 @@
 namespace app\api\model;
 
 use think\Model;
+use think\Db;
 
 class Order extends Model
 {
@@ -68,8 +69,8 @@ class Order extends Model
     	 *    2.2 当收款方有该币种，则增加数量
     	 */
 		// dump($data);
-  //   	dump($payer);
-  //   	dump($incomeer);
+		  //   	dump($payer);
+		  //   	dump($incomeer);
 
     	$num =  $data['number'];
     	$fee =  $data['fee'];
@@ -100,7 +101,7 @@ class Order extends Model
     			$this->error = '您的钱包余额不足';
     			return false;
     		}
-    		$payNum = $payNum - $fee;
+    		$payNum = $payNum + $fee;
     		$order['block'] = mt_rand(100000,999999); // 区块
     	}else{
 			// A.1 扣除矿工费
@@ -165,5 +166,34 @@ class Order extends Model
     	$this->commit();
 
     	return true;
+    }
+
+    public function getCount($data){
+    	$validate = Validate($this->name);
+        if (!$validate->scene('count')->check($data)) {
+            $this->error = $validate->getError();
+            return false;
+        }
+    	$days = 7;
+    	$sql = "select dayTb.cday 'datetime' 
+		    	,IFNULL(tNumTb2.num,0)-IFNULL(tNumTb.num,0) 'num' FROM (
+					SELECT @cdate := DATE_ADD(@cdate, INTERVAL +1 DAY) cday
+		 			FROM( SELECT @cdate := DATE_SUB(CURDATE(), INTERVAL ". $days ." DAY) FROM im_order limit ". $days .") t0
+		  			WHERE date(@cdate) <= DATE_ADD(CURDATE(), INTERVAL -1 DAY)
+				) dayTb
+				LEFT JOIN(
+					select LEFT(io.create_time,10) as cday,sum(io.number) as num from im_order io
+					where io.wtid = " . $data['wtid'] ." and io.from_uid = ". $data['uid'] ."
+					GROUP BY cday
+				) tNumTb ON tNumTb.cday = dayTb.cday
+				LEFT JOIN(
+					select LEFT(io.create_time,10) as cday,sum(io.number) as num from im_order io
+					where io.wtid = " . $data['wtid'] ." and io.to_uid = ". $data['uid'] ." 
+					GROUP BY cday
+				) tNumTb2 ON tNumTb2.cday = dayTb.cday";
+    	$rs = Db::query($sql);
+    	if($rs){
+    		return $rs;
+    	}
     }
 }

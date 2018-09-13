@@ -17,6 +17,7 @@ class Order extends Validate
         'pay_address' =>  'require',
         'number' =>  'require|gt:0',
         'fee' =>  'require',
+        'wtid' => 'require|number'
     ];
     
     /**
@@ -31,9 +32,12 @@ class Order extends Validate
         'number.require' =>  '转帐金额不能为空',
         'number.gt' =>  '转帐金额大于0',
         'fee.require' =>  '矿工费不能为空',
+        'wtid.require' => '缺少必要参数',
+        'wtid.number' => '参数不正确'
     ];
 
     protected $scene = [
-        'pay'  =>  ['income_address','pay_address','number','fee']
+        'pay'  =>  ['income_address','pay_address','number','fee'],
+        'count' => ['wtid']
     ];
 }
