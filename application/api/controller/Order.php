@@ -56,6 +56,32 @@ class Order extends Controller
         }
     }
 
+    /*
+     * 订单列表
+     */
+    public function read(Request $request)
+    {
+    	header('Access-Control-Allow-Origin: *');
+        if($request->isPost()){
+        	$this->param = $request->param();
+            $this->token = isset($this->param['user_token']) ? $this->param['user_token'] : null;
+            $this->checkToken();
+
+            $data['uid'] = $this->user['uid'];
+            $data['wtid'] = isset($this->param['wtid']) ? $this->param['wtid'] : null;
+            $Order = model('Order');
+            $listRs = $Order->getOrder($data);
+            if($listRs){
+            	return msg(1, $listRs, '成功！');
+            }else{
+            	return msg(0, null, '非法请求');
+            }
+        }else{
+        	return msg(0, null, '非法请求');
+        }
+    }
+
+
     // 统计
     public function count(Request $request){
 		header('Access-Control-Allow-Origin: *');

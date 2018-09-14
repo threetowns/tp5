@@ -196,4 +196,17 @@ class Order extends Model
     		return $rs;
     	}
     }
+
+    public function getOrder($data){
+    	$validate = Validate($this->name);
+        if (!$validate->scene('count')->check($data)) {
+            $this->error = $validate->getError();
+            return false;
+        }
+
+        $where['to_uid|from_uid'] = $data['uid'];
+        $where['wtid'] = $data['wtid'];
+        $rs = $this->where($where)->order('create_time', 'desc')->select();
+    	return $rs;
+    }
 }
