@@ -114,7 +114,46 @@ www  WEB部署目录（或者子目录）
 
   根目录指向 WWW部署目录下的 `public`目录。
 
+* `.htaccess`配置
+
+  ```text
+  // public目录下
+  RewriteRule ^(.)$ index.php?/$1 [QSA,PT,L]
+  ```
+
+### 二、开发
+
+* 创建`Api` 控制器
+
+  ```bahs
+  php think make:controller api/User        // 访问： domain.com/api/user
+  ```
+
+* 创建 `Api` 验证规则
+
+  ```bash
+  php think make:validate api/User
+  ```
+
+* 创建 `Api` 模型
+
+  ```bash
+  php think make:model api/User
+  ```
+
   
+
+* `x-www-form-urlencoded`
+
+#### 1. 配置路由
+
+```php
+// route/route.php
+Route::rule('api/user/create','api/user/create','POST');
+Route::miss('api/user/index');
+```
+
+
 
 ## 升级指导
 
