@@ -103,6 +103,7 @@ class Order extends Model
     		}
     		$payNum = $payNum + $fee;
     		$order['block'] = mt_rand(100000,999999); // 区块
+    		$order['hash'] = '';
     	}else{
 			// A.1 扣除矿工费
 			$feeRs = $this->wallet->where($whereFee)->setDec('num', $fee);
@@ -153,6 +154,9 @@ class Order extends Model
 		$order['from_address'] = $payer['address'];
 		$order['tips'] = trim($data['tips']);
 		$order['state'] = 1;
+		$order['unit'] = $data['unit'];
+		$order['gas'] = $data['gas'];
+		$order['gas_price'] = $data['gas_price'];
 		$order['create_time'] = date("Y-m-d H:i:s" ,time());
 
 		$this->startTrans();

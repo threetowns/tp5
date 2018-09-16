@@ -33,7 +33,10 @@ class Order extends Controller
               'pay_way' => $this->param['pay_way'],
               'pay_id' => $this->param['pay_id'],
               'type' => $this->param['type'],
-              'uid' => $this->user['uid']
+              'uid' => $this->user['uid'],
+              'unit' => $this->param['unit'],
+              'gas' => $this->param['gas'],
+              'gas_price' => $this->param['gas_price']
             ];
 
             $Order = model('Order');
