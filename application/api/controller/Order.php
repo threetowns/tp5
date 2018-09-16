@@ -12,6 +12,29 @@ class Order extends Controller
         return msg(0, null, '访问无效');
     }
 
+    public function details(Request $request)
+    {
+        header('Access-Control-Allow-Origin: *');
+        if($request->isPost()){
+            $this->param = $request->param();
+            $this->token = isset($this->param['user_token']) ? $this->param['user_token'] : null;
+            $this->checkToken();
+
+            $data = [
+                'oid' => isset($this->param['oid']) ? $this->param['oid'] : null,
+            ];
+            $Order = model('Order');
+            $ret = $Order->findOrder($data);
+            if($ret){
+                return msg(1, $ret, '查询成功');
+            }else{
+                return msg(0, null, $Order->getError());
+            }
+        }else{
+            return msg(0, null, '访问无效');
+        }
+    }
+
     /*
      * 转账
      */
@@ -34,7 +57,7 @@ class Order extends Controller
               'pay_id' => $this->param['pay_id'],
               'type' => $this->param['type'],
               'uid' => $this->user['uid'],
-              'unit' => $this->param['unit'],
+              'units' => $this->param['units'],
               'gas' => $this->param['gas'],
               'gas_price' => $this->param['gas_price']
             ];

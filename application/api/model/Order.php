@@ -154,7 +154,7 @@ class Order extends Model
 		$order['from_address'] = $payer['address'];
 		$order['tips'] = trim($data['tips']);
 		$order['state'] = 1;
-		$order['unit'] = $data['unit'];
+		$order['units'] = $data['units'];
 		$order['gas'] = $data['gas'];
 		$order['gas_price'] = $data['gas_price'];
 		$order['create_time'] = date("Y-m-d H:i:s" ,time());
@@ -212,5 +212,16 @@ class Order extends Model
         $where['wtid'] = $data['wtid'];
         $rs = $this->where($where)->order('create_time', 'desc')->select();
     	return $rs;
+    }
+
+    public function findOrder($data){
+        $where['oid'] = $data['oid'];
+        $rs = $this->where($where)->find();
+        if($rs){
+            return $rs;
+        }else{
+            $this->error = '没有结果';
+            return false;
+        }
     }
 }
