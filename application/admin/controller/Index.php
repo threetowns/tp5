@@ -93,8 +93,9 @@ class Index extends Controller
     		$page = isset($data['page']) && is_numeric($data['page']) ? intval($data['page']) : 1;
 
     		$rs = $Wallet->alias('w')
-    				->field('w.*, u.username')
+    				->field('w.*, u.username, wt.symbol, wt.logo_icon, wt.fullname')
     				->join('user u','w.uid=u.uid')
+    				->join('wallet_type wt','w.wtid=wt.wid')
     				->limit($rows)
     				->page($page)
     				->where($where)
