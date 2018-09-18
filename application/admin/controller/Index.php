@@ -154,6 +154,42 @@ class Index extends Controller
         }
     }
 
+    /*
+     * 币种
+     */
+    public function currency(Request $request){
+    	header('Access-Control-Allow-Origin: *');
+        if($request->isPost()){
+        	$WalletTyep = db('wallet_type');
+        	$data = $request->param();
+        	// page
+        	$rows = isset($data['rows']) && is_numeric($data['rows']) ? intval($data['rows']) : 10;
+    		$page = isset($data['page']) && is_numeric($data['page']) ? intval($data['page']) : 1;
+    		// where
+    		$where = [];
+    		if(isset($data['type']) && !empty($data['type'])){
+        		$where[] = ['wid', '=', intval($data['type'])];
+        	}
+        	if(isset($data['status']) && !empty($data['status'] || $data['status'] == 0)){
+        		$where[] = ['status', '=', intval($data['status'])];
+        	}
+
+    		$rs = $WalletTyep->alias('w')
+    				->limit($rows)
+    				->page($page)
+    				->where($where)
+    				->select();
+    		$total = $WalletTyep->where($where)->count();
+    		$res['total'] = $total;
+    		$res['page'] = $page;
+   			$res['data'] = $rs;
+
+    		return msg(1, $res, 'ok');
+        }else{
+        	return msg(0, null, '非法请求');
+        }
+    }
+
     /**
 	 * 订单检索字段处理
 	 */
