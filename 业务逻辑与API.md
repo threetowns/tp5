@@ -190,3 +190,119 @@
 
 
 
+## 三、后台接口
+
+### 3.1 登录
+
+* 请求地址：`/admin/index/login`
+
+* 请求方式：`POST`
+
+* 请求参数：
+
+  ```json
+  {
+      "username": '',
+      "password": ''
+  }
+  ```
+
+* 返回参数：
+
+  ```json
+  {
+      "state": 1,
+      "data": {
+          "token": "36a0a775b9fd762134702511a6093219",
+          "username": "admin"
+      },
+      "message": "登录成功"
+  }
+  ```
+
+
+
+### 3.2 订单（含分页）
+
+* 请求地址：`/admin/index/order`
+
+* 请求方式：`POST`
+
+* 请求参数：
+
+  ```json
+  {
+      page: 1,
+      rows: 10,
+      address: '' // 收款或付款地址，非必须
+      hash: ''    // 交易hash
+      type: 1     // 订单类型（1. eth; 2. btc; 3. AE ...）
+  }
+  ```
+
+
+
+### 3.3 钱包
+
+#### 3.3.1 列表
+
+* 请求地址：`/admin/index/wallet`
+
+* 请求方式：`POST`
+
+* 请求参数：
+
+  ```json
+  {
+      page: 1,
+      rows: 10,
+      address: ''   // 钱包地址，非必须
+      type: 1,      // 类型
+      username: ''  // 用户名（联表查询）
+  }
+  ```
+
+#### 3.3.2 修改
+
+* 请求地址：`/admin/index/wallet_edit/`
+
+* 请求方式：`POST`
+
+* 请求参数：
+
+  ```json
+  {
+      id: '',
+      num: ''
+  }
+  ```
+
+
+
+### 3.4 币种
+
+#### 3.4.1 列表 
+
+* 请求地址：`/admin/index/currency`
+
+* 请求方式：`POST`
+
+* 请求参数：
+
+  ```json
+  {
+      page: 1,
+      rows: 10
+  }
+  ```
+
+  
+
+#### 3.4.2 编辑（currency_edit）
+
+#### 3.4.3 增加（current_add）
+
+#### 3.4.4 删除（current_del）
+
+
+
