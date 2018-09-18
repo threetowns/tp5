@@ -82,7 +82,7 @@ class Index extends Controller
         		$where[] = ['w.address', 'like', '%'.$data['address']. '%'];
         	}
         	if(isset($data['type']) && !empty($data['type'])){
-        		$where[] = ['w.wtid', 'like', '%'.$data['type']. '%'];
+        		$where[] = ['w.wtid', '=', intval($data['type'])];
         	}
         	if(isset($data['username']) && !empty($data['username'])){
         		$where[] = ['u.username', 'like', '%'.$data['username']. '%'];
