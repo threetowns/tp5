@@ -111,6 +111,49 @@ class Index extends Controller
         }
     }
 
+    /*
+     * 修改钱包
+     */
+    public function wallet_edit(Request $request){
+    	header('Access-Control-Allow-Origin: *');
+        if($request->isPost()){
+        	$Wallet = db('Wallet');
+        	$this->param = $request->param();
+
+        	// checkToken
+        	$this->token = isset($this->param['admin_token']) ? $this->param['admin_token'] : null;
+        	$this->checkToken();
+
+        	// ID
+        	$id = isset($this->param['id']) && is_numeric($this->param['id']) ? intval($this->param['id']) : null;
+        	if(!$id){
+        		return msg(0, null, '参数有误');
+        	}
+        	// num
+        	$num = isset($this->param['num']) && !empty($this->param['num']) ? floatval($this->param['num']): null;
+        	if(!$num || $num<0){
+        		return msg(0, null, '参数有误');
+        	}
+        	$where['wid'] = $id;
+        	$rs = $Wallet->where($where)->find();
+        	if(!$rs){
+        		return msg(0, null, '参数有误');
+        	}
+
+        	$save['wid'] = $rs['wid'];
+        	$save['num'] = $num;
+        	$result = $Wallet->where('wid',$rs['wid'])->update($save);
+        	if($result){
+        		return msg(1, null, '更新成功！');
+        	}else{
+        		return msg(0, null, '操作失败！');
+        	}
+
+        }else{
+        	return msg(0, null, '非法请求');
+        }
+    }
+
     /**
 	 * 订单检索字段处理
 	 */
@@ -143,4 +186,17 @@ class Index extends Controller
 		$res['where'] = $where;
 		return $res;
 	}
+
+	/*
+	 * 管理员登录token
+	 */
+	public function checkToken()
+    {
+        $this->admin = json_decode(cache($this->token), true);
+        if (!$this->admin) {
+            exit(json_encode(['code'=>101, 'error'=>'请重新登录']));
+        }
+        //每次访问自动续命
+        cache($this->token, json_encode($this->admin), 3600 *2);
+    }
 }
