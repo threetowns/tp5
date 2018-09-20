@@ -51,12 +51,18 @@ class Index extends Controller
         	$res = $this->checkFilterData($data);
         	$where = $res['where'];
 
-        	// count
-        	$total = $Order->where($where)->count();
         	// where
         	$rows = isset($data['rows']) && is_numeric($data['rows']) ? intval($data['rows']) : 10;
     		$page = isset($data['page']) && is_numeric($data['page']) ? intval($data['page']) : 1;
-        	$ret = db('Order')->where($where)->limit($rows)->page($page)->select();
+        	$ret = $Order->alias('o')
+        			->join('user u','u.uid=o.from_uid or u.uid = o.to_uid')
+        			->field('o.*, u.username')
+        			->where($where)
+        			->limit($rows)
+        			->page($page)
+        			->select();
+        	// count
+        	$total = $Order->where($where)->count();
 
         	$rs['data'] = $ret;
         	$rs['total'] = $total;
@@ -160,7 +166,6 @@ class Index extends Controller
     public function currency(Request $request){
     	header('Access-Control-Allow-Origin: *');
         if($request->isPost()){
-        	$WalletTyep = db('wallet_type');
         	$data = $request->param();
         	// page
         	$rows = isset($data['rows']) && is_numeric($data['rows']) ? intval($data['rows']) : 10;
@@ -174,12 +179,13 @@ class Index extends Controller
         		$where[] = ['status', '=', intval($data['status'])];
         	}
 
-    		$rs = $WalletTyep->alias('w')
+        	$WalletType = db('wallet_type');
+    		$rs = $WalletType->alias('w')
     				->limit($rows)
     				->page($page)
     				->where($where)
     				->select();
-    		$total = $WalletTyep->where($where)->count();
+    		$total = $WalletType->where($where)->count();
     		$res['total'] = $total;
     		$res['page'] = $page;
    			$res['data'] = $rs;
@@ -196,27 +202,32 @@ class Index extends Controller
 	public function checkFilterData($data)
 	{
 		
-		$where = array();
+		$where = [];
 		$getdata = array();
 
 		//订单hash
 		if(isset($data['hash']) && !empty($data['hash'])){
-			$where['hash'] = array('like','%'.$data['hash'].'%');
+			$where[] = ['o.hash', 'like', '%'.$data['address']. '%'];
 		}
 		// 订单类型
 		if(isset($data['type']) && !empty($data['type'])){
-			$where['wtid'] = $data['type'];
+			$where[] = ['o.wtid', '=', $data['type']];
 		}
 		// 付款/收款地址
 		if(isset($data['address']) && !empty($data['address'])){
-			$where['from_address|to_address'] = array('like','%'.$data['address'].'%');
+			$where[] = ['o.from_address|o.to_address', 'like','%'.$data['address'].'%'];
+		}
+		// 用户
+		if(isset($data['username']) && !empty($data['username'])){
+			$where[] = ['u.username', 'like', '%'.$data['username'].'%'];
 		}
 		//时间搜索
 		if(isset($data['starttime']) && !empty($data['starttime'])){
 			if(!isset($data['endtime']) || empty($data['endtime'])){
 				$data['endtime'] = date('Y-m-d H:i:s',time());
 			}
-			$where['create_time'] = array('between time',array($data['starttime'],$data['endtime']));
+			$where['o.create_time'] = array('between time',array($data['starttime'],$data['endtime']));
+			// $where[] = ['o.create_time', 'between time', [$data['starttime'],$data['endtime']];
 		}
 
 		$res['where'] = $where;
