@@ -63,7 +63,8 @@ class Index extends Controller
     		$page = isset($data['page']) && is_numeric($data['page']) ? intval($data['page']) : 1;
             $sql = "select o.*,
                 (SELECT username from im_user where uid = to_uid) to_username,
-                (SELECT username from im_user where uid = from_uid) from_username from im_order o";
+                (SELECT username from im_user where uid = from_uid) from_username,
+                (SELECT symbol from im_wallet_type where wid = wtid) symbol from im_order o";
 
             $where=' where 1=1';
             // 用户
@@ -85,20 +86,13 @@ class Index extends Controller
                     o.to_address like '%" . $data['address']. "%')";
             }
 
-            $ret = Db::query($sql . $where);
+            $startRow = ($page - 1) * $rows;
+            $ret = Db::query($sql . $where . " limit " . $startRow ."," .$rows);
 
-        	// $ret = $Order->alias('o')
-        	// 		->join('user u','u.uid=o.from_uid or u.uid = o.to_uid')
-        	// 		->field('o.*, u.username')
-        	// 		->where($where)
-        	// 		->limit($rows)
-        	// 		->page($page)
-        	// 		->select();
         	// count
-        	// $total = $Order->where($where)->count();
-
+        	$total = Db::query("select count(*) as count from im_order o" . $where);
         	$rs['data'] = $ret;
-        	// $rs['total'] = $total;
+        	$rs['total'] = $total[0]['count'];
         	$rs['page'] = $page;
         	return msg(1, $rs, 'ok');
         }else{
