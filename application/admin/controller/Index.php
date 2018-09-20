@@ -4,6 +4,7 @@ namespace app\admin\controller;
 
 use think\Controller;
 use think\Request;
+use think\Db;
 
 class Index extends Controller
 {
@@ -48,24 +49,56 @@ class Index extends Controller
         	$Order = db('Order');
         	$data = $request->param();
 
-        	$res = $this->checkFilterData($data);
-        	$where = $res['where'];
+            //时间搜索
+            // if(isset($data['starttime']) && !empty($data['starttime'])){
+            //     if(!isset($data['endtime']) || empty($data['endtime'])){
+            //         $data['endtime'] = date('Y-m-d H:i:s',time());
+            //     }
+            //     $where['o.create_time'] = array('between time',array($data['starttime'],$data['endtime']));
+            //     // $where[] = ['o.create_time', 'between time', [$data['starttime'],$data['endtime']];
+            // }
 
         	// where
         	$rows = isset($data['rows']) && is_numeric($data['rows']) ? intval($data['rows']) : 10;
     		$page = isset($data['page']) && is_numeric($data['page']) ? intval($data['page']) : 1;
-        	$ret = $Order->alias('o')
-        			->join('user u','u.uid=o.from_uid or u.uid = o.to_uid')
-        			->field('o.*, u.username')
-        			->where($where)
-        			->limit($rows)
-        			->page($page)
-        			->select();
+            $sql = "select o.*,
+                (SELECT username from im_user where uid = to_uid) to_username,
+                (SELECT username from im_user where uid = from_uid) from_username from im_order o";
+
+            $where=' where 1=1';
+            // 用户
+            if(isset($data['username']) && !empty($data['username'])){
+                $where .= " and (
+                    o.to_uid = (select u.uid from im_user u where u.username like '%". $data['username'] ."%')
+                    or 
+                    o.from_uid = (select u.uid from im_user u where u.username like '%". $data['username'] ."%'))";
+            }
+            // 订单类型
+            if(isset($data['type']) && !empty($data['type'])){
+                $where .= " and o.wtid = ". intval($data['type']);
+            }
+            // 付款/收款地址
+            if(isset($data['address']) && !empty($data['address'])){
+                $where .= " and (
+                    o.from_address like '%" . $data['address']. "%'
+                    or
+                    o.to_address like '%" . $data['address']. "%')";
+            }
+
+            $ret = Db::query($sql . $where);
+
+        	// $ret = $Order->alias('o')
+        	// 		->join('user u','u.uid=o.from_uid or u.uid = o.to_uid')
+        	// 		->field('o.*, u.username')
+        	// 		->where($where)
+        	// 		->limit($rows)
+        	// 		->page($page)
+        	// 		->select();
         	// count
-        	$total = $Order->where($where)->count();
+        	// $total = $Order->where($where)->count();
 
         	$rs['data'] = $ret;
-        	$rs['total'] = $total;
+        	// $rs['total'] = $total;
         	$rs['page'] = $page;
         	return msg(1, $rs, 'ok');
         }else{
