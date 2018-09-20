@@ -41,6 +41,40 @@ class Index extends Controller
     }
 
     /*
+     * 用户列表
+     */
+    public function user(Request $request){
+        header('Access-Control-Allow-Origin: *');
+        if($request->isPost()){
+            $data = $request->param();
+            // checkToken
+            $this->token = isset($data['admin_token']) ? $data['admin_token'] : null;
+            $this->checkToken();
+
+            $rows = isset($data['rows']) && is_numeric($data['rows']) ? intval($data['rows']) : 10;
+            $page = isset($data['page']) && is_numeric($data['page']) ? intval($data['page']) : 1;
+
+            $where = [];
+            if(isset($data['username']) && !empty($data['username'])){
+                $where[] = ['username', 'like', '%'.$data['username'].'%'];
+            }
+            $ret = db('User')
+                ->where($where)
+                ->limit($rows)
+                ->page($page)
+                ->select();
+            $total = db('User')->where($where)->count();
+
+            $rs['data'] = $ret;
+            $rs['total'] = $total;
+            $rs['page'] = $page;
+            return msg(1, $rs, 'ok');
+        }else{
+            return msg(0, null, '非法请求');
+        }
+    }
+
+    /*
      * 订单列表
      */
     public function order(Request $request){
@@ -150,7 +184,6 @@ class Index extends Controller
     public function wallet_edit(Request $request){
     	header('Access-Control-Allow-Origin: *');
         if($request->isPost()){
-        	$Wallet = db('Wallet');
         	$this->param = $request->param();
 
         	// checkToken
@@ -165,17 +198,18 @@ class Index extends Controller
         	// num
         	$num = isset($this->param['num']) && !empty($this->param['num']) ? floatval($this->param['num']): null;
         	if(!$num || $num<0){
-        		return msg(0, null, '参数有误');
+        		return msg(0, null, '请输入数值');
         	}
         	$where['wid'] = $id;
-        	$rs = $Wallet->where($where)->find();
+        	$rs = db('Wallet')->where($where)->find();
         	if(!$rs){
-        		return msg(0, null, '参数有误');
+        		return msg(0, null, '参数有误，该钱包不存在');
         	}
 
-        	$save['wid'] = $rs['wid'];
-        	$save['num'] = $num;
-        	$result = $Wallet->where('wid',$rs['wid'])->update($save);
+            $up['wid'] = $rs['wid'];
+            $up['uid']= $rs['uid'];
+            
+        	$result = db('Wallet')->where($up)->setInc('num', $num);
         	if($result){
         		return msg(1, null, '更新成功！');
         	}else{
@@ -268,9 +302,9 @@ class Index extends Controller
     {
         $this->admin = json_decode(cache($this->token), true);
         if (!$this->admin) {
-            exit(json_encode(['code'=>101, 'error'=>'请重新登录']));
+            exit(json_encode(['state'=>0, 'code'=>101, 'message'=>'请重新登录']));
         }
         //每次访问自动续命
-        cache($this->token, json_encode($this->admin), 3600 *2);
+        cache($this->token, json_encode($this->admin), 3600 *30);
     }
 }
